@@ -1,23 +1,33 @@
 use pixel_loop::canvas::Canvas;
 use pixel_loop::color::Color;
+use pixel_loop::rand;
 
-#[derive(Debug)]
+use crate::digits::{Digit, FallingTetromino};
+
+#[derive(Debug, Copy, Clone)]
 pub enum Shape {
     L,
     J,
-    Square,
+    O,
     T,
-    Straight,
-    Skew,
-    RightSkew,
+    I,
+    S,
+    Z,
 }
 
-#[derive(Debug)]
+#[derive(Debug, Copy, Clone)]
 pub enum Rotation {
     Degrees90,
     Degrees180,
     Degrees270,
     NoRotation,
+}
+
+#[derive(Debug, Copy, Clone, PartialEq)]
+enum FallState {
+    In,
+    Out,
+    Hold,
 }
 
 // Tetromino coordinates always describe the lower left corner of the shape,
@@ -42,7 +52,7 @@ struct Tetromino {
     x: i64,
     y: i64,
     color: Color,
-    stopped: bool,
+    fall: FallState,
 }
 
 fn would_tetromino_collide_with_canvas<C: Canvas>(
@@ -95,7 +105,7 @@ fn would_tetromino_collide_with_canvas<C: Canvas>(
             !canvas.is_empty_or_color(*x, *y, &empty)
                 || !canvas.is_empty_or_color(*x + 1, *y - 2, &empty)
         }
-        (Square, _) => {
+        (O, _) => {
             !canvas.is_empty_or_color(*x, *y, &empty)
                 || !canvas.is_empty_or_color(*x + 1, *y, &empty)
         }
@@ -117,28 +127,28 @@ fn would_tetromino_collide_with_canvas<C: Canvas>(
             !canvas.is_empty_or_color(*x, *y, &empty)
                 || !canvas.is_empty_or_color(*x + 1, *y - 1, &empty)
         }
-        (Straight, NoRotation) | (Straight, Degrees180) => {
+        (I, NoRotation) | (I, Degrees180) => {
             !canvas.is_empty_or_color(*x, *y, &empty)
                 || !canvas.is_empty_or_color(*x + 1, *y, &empty)
                 || !canvas.is_empty_or_color(*x + 2, *y, &empty)
                 || !canvas.is_empty_or_color(*x + 3, *y, &empty)
         }
-        (Straight, Degrees90) | (Straight, Degrees270) => !canvas.is_empty_or_color(*x, *y, &empty),
-        (Skew, NoRotation) | (Skew, Degrees180) => {
+        (I, Degrees90) | (I, Degrees270) => !canvas.is_empty_or_color(*x, *y, &empty),
+        (S, NoRotation) | (S, Degrees180) => {
             !canvas.is_empty_or_color(*x, *y, &empty)
                 || !canvas.is_empty_or_color(*x + 1, *y, &empty)
                 || !canvas.is_empty_or_color(*x + 2, *y - 1, &empty)
         }
-        (Skew, Degrees90) | (Skew, Degrees270) => {
+        (S, Degrees90) | (S, Degrees270) => {
             !canvas.is_empty_or_color(*x, *y, &empty)
                 || !canvas.is_empty_or_color(*x - 1, *y - 1, &empty)
         }
-        (RightSkew, NoRotation) | (RightSkew, Degrees180) => {
+        (Z, NoRotation) | (Z, Degrees180) => {
             !canvas.is_empty_or_color(*x, *y, &empty)
                 || !canvas.is_empty_or_color(*x + 1, *y, &empty)
                 || !canvas.is_empty_or_color(*x - 1, *y - 1, &empty)
         }
-        (RightSkew, Degrees90) | (RightSkew, Degrees270) => {
+        (Z, Degrees90) | (Z, Degrees270) => {
             !canvas.is_empty_or_color(*x, *y, &empty)
                 || !canvas.is_empty_or_color(*x + 1, *y - 1, &empty)
         }
@@ -156,7 +166,7 @@ impl Board {
             tetrominos: vec![],
             // @FIXME: Calculate based on terminal height and shown digits
             // height, to center display.
-            virtual_y_stop: 40,
+            virtual_y_stop: 20,
         }
     }
 
@@ -174,7 +184,7 @@ impl Board {
             color,
             shape,
             rotation,
-            stopped: false,
+            fall: FallState::In,
         })
     }
 
@@ -223,7 +233,7 @@ impl Board {
                     canvas.filled_rect(*x, *y - 3, 1, 3, color);
                     canvas.filled_rect(*x + 1, *y - 3, 1, 1, color);
                 }
-                (Square, _) => {
+                (O, _) => {
                     canvas.filled_rect(*x, *y - 2, 2, 2, color);
                 }
                 (T, NoRotation) => {
@@ -242,25 +252,25 @@ impl Board {
                     canvas.filled_rect(*x, *y - 3, 1, 3, color);
                     canvas.filled_rect(*x + 1, *y - 2, 1, 1, color);
                 }
-                (Straight, NoRotation) | (Straight, Degrees180) => {
+                (I, NoRotation) | (I, Degrees180) => {
                     canvas.filled_rect(*x, *y - 1, 4, 1, color);
                 }
-                (Straight, Degrees90) | (Straight, Degrees270) => {
+                (I, Degrees90) | (I, Degrees270) => {
                     canvas.filled_rect(*x, *y - 4, 1, 4, color);
                 }
-                (Skew, NoRotation) | (Skew, Degrees180) => {
+                (S, NoRotation) | (S, Degrees180) => {
                     canvas.filled_rect(*x, *y - 1, 2, 1, color);
                     canvas.filled_rect(*x + 1, *y - 2, 2, 1, color);
                 }
-                (Skew, Degrees90) | (Skew, Degrees270) => {
+                (S, Degrees90) | (S, Degrees270) => {
                     canvas.filled_rect(*x, *y - 2, 1, 2, color);
                     canvas.filled_rect(*x - 1, *y - 3, 1, 2, color);
                 }
-                (RightSkew, NoRotation) | (RightSkew, Degrees180) => {
+                (Z, NoRotation) | (Z, Degrees180) => {
                     canvas.filled_rect(*x, *y - 1, 2, 1, color);
                     canvas.filled_rect(*x - 1, *y - 2, 2, 1, color);
                 }
-                (RightSkew, Degrees90) | (RightSkew, Degrees270) => {
+                (Z, Degrees90) | (Z, Degrees270) => {
                     canvas.filled_rect(*x, *y - 2, 1, 2, color);
                     canvas.filled_rect(*x + 1, *y - 3, 1, 2, color);
                 }
@@ -270,13 +280,79 @@ impl Board {
 
     pub fn update<C: Canvas>(&mut self, canvas: &C) {
         for tetromino in self.tetrominos.iter_mut() {
-            if !tetromino.stopped && !would_tetromino_collide_with_canvas(tetromino, canvas) {
+            if tetromino.fall != FallState::Hold
+                && !would_tetromino_collide_with_canvas(tetromino, canvas)
+            {
                 tetromino.y += 1;
             }
 
-            if tetromino.y == self.virtual_y_stop {
-                tetromino.stopped = true;
+            if tetromino.y == self.virtual_y_stop && tetromino.fall != FallState::Out {
+                tetromino.fall = FallState::Hold;
             }
         }
+
+        self.tetrominos
+            .retain(|tetromino| tetromino.y <= canvas.height() as i64 + 4);
+    }
+
+    pub fn initiate_fall_out(&mut self) {
+        for tetromino in self.tetrominos.iter_mut() {
+            tetromino.fall = FallState::Out;
+        }
+    }
+}
+
+pub struct DigitBoard {
+    board: Board,
+    x_offset: i64,
+    animation: Vec<FallingTetromino>,
+    index: usize,
+    updates_since_last_anim: usize,
+}
+
+impl DigitBoard {
+    pub fn new(x_offset: i64) -> Self {
+        Self {
+            board: Board::new(),
+            x_offset,
+            animation: Digit::Zero.into(),
+            index: 0,
+            updates_since_last_anim: 0,
+        }
+    }
+
+    pub fn update<C: Canvas>(&mut self, canvas: &C) {
+        if self.index < self.animation.len() && self.updates_since_last_anim > 3 {
+            let FallingTetromino {
+                shape,
+                rotation,
+                dx,
+            } = self.animation[self.index];
+
+            let color = Color::from_rgb(
+                rand::random::<u8>(),
+                rand::random::<u8>(),
+                rand::random::<u8>(),
+            );
+            self.board
+                .add_tetromino(self.x_offset + dx, 0, color, shape, rotation);
+
+            self.index += 1;
+            self.updates_since_last_anim = 0;
+        }
+
+        self.board.update(canvas);
+        self.updates_since_last_anim += 1;
+    }
+
+    pub fn render<C: Canvas>(&self, canvas: &mut C) {
+        self.board.render(canvas);
+    }
+
+    pub fn set_digit(&mut self, digit: Digit) {
+        self.board.initiate_fall_out();
+        self.animation = digit.into();
+        self.index = 0;
+        self.updates_since_last_anim = 0;
     }
 }

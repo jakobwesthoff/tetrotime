@@ -1,22 +1,26 @@
+mod digits;
 mod tetromino;
 
 use anyhow::Result;
+use digits::Digit;
 use pixel_loop::canvas::CrosstermCanvas;
 use pixel_loop::canvas::{Canvas, RenderableCanvas};
 use pixel_loop::color::Color;
 use pixel_loop::crossterm::terminal;
 use pixel_loop::input::{CrosstermInputState, KeyboardKey, KeyboardState};
 use pixel_loop::rand::Rng;
-use tetromino::Board;
+use tetromino::{Board, DigitBoard};
 
 struct State {
-    board: Board,
+    board: DigitBoard,
+    current_digit: usize,
 }
 
 impl State {
     fn new(width: u32, height: u32) -> Self {
         Self {
-            board: Board::new(),
+            board: DigitBoard::new(20),
+            current_digit: 0,
         }
     }
 }
@@ -48,32 +52,12 @@ fn main() -> Result<()> {
             }
 
             if input.is_key_pressed(KeyboardKey::Space) {
-                let x = e.rand.gen_range(0..width as i64 - 1);
-                let color =
-                    Color::from_rgb(e.rand.gen::<u8>(), e.rand.gen::<u8>(), e.rand.gen::<u8>());
-                let shape = match e.rand.gen_range(0..7) {
-                    0 => tetromino::Shape::L,
-                    1 => tetromino::Shape::Square,
-                    2 => tetromino::Shape::Straight,
-                    3 => tetromino::Shape::T,
-                    4 => tetromino::Shape::Skew,
-                    5 => tetromino::Shape::RightSkew,
-                    6 => tetromino::Shape::J,
-                    _ => panic!("Something very strange happend"),
-                };
+                s.current_digit += 1;
+                if s.current_digit > 9 {
+                    s.current_digit = 0;
+                }
 
-                let rotation = match e.rand.gen_range(0..4) {
-                    0 => tetromino::Rotation::NoRotation,
-                    1 => tetromino::Rotation::Degrees90,
-                    2 => tetromino::Rotation::Degrees180,
-                    3 => tetromino::Rotation::Degrees270,
-                    _ => panic!("Something very strange happend"),
-                };
-
-                // eprintln!("Adding tetromino: {:?} {:?} {:?}", shape, rotation, color);
-
-                // @FIXME: Only for testing, remove later
-                s.board.add_tetromino(x, 0, color, shape, rotation);
+                s.board.set_digit(s.current_digit.into());
             }
 
             s.board.update(canvas);
