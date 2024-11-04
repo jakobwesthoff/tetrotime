@@ -1,0 +1,10 @@
+[package]
+name = "tetrotime"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+pixel_loop = { version = "*", path = "../pixel_loop", default-features = false, features = [
+  "crossterm",
+] }
+anyhow = "*"
