@@ -2,7 +2,7 @@ use pixel_loop::canvas::Canvas;
 use pixel_loop::color::Color;
 use pixel_loop::rand;
 
-use crate::digits::{Digit, FallingTetromino};
+use crate::digits::{Animation, Digit, FallingTetromino};
 
 #[derive(Debug, Copy, Clone)]
 pub enum Shape {
@@ -13,6 +13,20 @@ pub enum Shape {
     I,
     S,
     Z,
+}
+
+impl Into<Color> for Shape {
+    fn into(self) -> Color {
+        match self {
+            Shape::L => Color::from_rgb(255, 165, 0),
+            Shape::J => Color::from_rgb(0, 0, 255),
+            Shape::O => Color::from_rgb(255, 255, 0),
+            Shape::T => Color::from_rgb(238, 130, 238),
+            Shape::I => Color::from_rgb(0, 255, 255),
+            Shape::S => Color::from_rgb(0, 255, 0),
+            Shape::Z => Color::from_rgb(255, 0, 0),
+        }
+    }
 }
 
 #[derive(Debug, Copy, Clone)]
@@ -157,16 +171,14 @@ fn would_tetromino_collide_with_canvas<C: Canvas>(
 
 pub struct Board {
     tetrominos: Vec<Tetromino>,
-    virtual_y_stop: i64,
+    y_stop: i64,
 }
 
 impl Board {
-    pub fn new() -> Self {
+    pub fn new(y_stop: i64) -> Self {
         Self {
             tetrominos: vec![],
-            // @FIXME: Calculate based on terminal height and shown digits
-            // height, to center display.
-            virtual_y_stop: 20,
+            y_stop,
         }
     }
 
@@ -286,7 +298,7 @@ impl Board {
                 tetromino.y += 1;
             }
 
-            if tetromino.y == self.virtual_y_stop && tetromino.fall != FallState::Out {
+            if tetromino.y == self.y_stop && tetromino.fall != FallState::Out {
                 tetromino.fall = FallState::Hold;
             }
         }
@@ -305,17 +317,17 @@ impl Board {
 pub struct DigitBoard {
     board: Board,
     x_offset: i64,
-    animation: Vec<FallingTetromino>,
+    animation: Animation,
     index: usize,
     updates_since_last_anim: usize,
 }
 
 impl DigitBoard {
-    pub fn new(x_offset: i64) -> Self {
+    pub fn new(x_offset: i64, y_stop: i64, animation: Animation) -> Self {
         Self {
-            board: Board::new(),
+            board: Board::new(y_stop),
             x_offset,
-            animation: Digit::Zero.into(),
+            animation,
             index: 0,
             updates_since_last_anim: 0,
         }
@@ -329,13 +341,8 @@ impl DigitBoard {
                 dx,
             } = self.animation[self.index];
 
-            let color = Color::from_rgb(
-                rand::random::<u8>(),
-                rand::random::<u8>(),
-                rand::random::<u8>(),
-            );
             self.board
-                .add_tetromino(self.x_offset + dx, 0, color, shape, rotation);
+                .add_tetromino(self.x_offset + dx, 0, shape.into(), shape, rotation);
 
             self.index += 1;
             self.updates_since_last_anim = 0;

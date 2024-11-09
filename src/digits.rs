@@ -1,5 +1,6 @@
 use crate::tetromino::{Rotation, Shape};
 
+#[derive(Clone, Copy, PartialEq)]
 pub enum Digit {
     Zero,
     One,
@@ -34,12 +35,20 @@ impl From<usize> for Digit {
     }
 }
 
+impl From<u32> for Digit {
+    fn from(value: u32) -> Self {
+        Self::from(value as usize)
+    }
+}
+
 #[derive(Debug, Copy, Clone)]
 pub struct FallingTetromino {
     pub shape: Shape,
     pub rotation: Rotation,
     pub dx: i64,
 }
+
+pub type Animation = Vec<FallingTetromino>;
 
 impl FallingTetromino {
     pub fn new(shape: Shape, rotation: Rotation, dx: i64) -> Self {
@@ -51,8 +60,8 @@ impl FallingTetromino {
     }
 }
 
-impl Into<Vec<FallingTetromino>> for Digit {
-    fn into(self) -> Vec<FallingTetromino> {
+impl Into<Animation> for Digit {
+    fn into(self) -> Animation {
         use Rotation::*;
         use Shape::*;
         match self {
