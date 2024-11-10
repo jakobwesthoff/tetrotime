@@ -9,6 +9,8 @@ in the development of this and other projects check out my YouTube channel
 [MrJakob](https://youtube.com/c/mrjakob), where I live code this and other
 projects.
 
+<img src="assets/thumbnail.png" width="80%" style="max-width: 80%;" />
+
 ## Usage
 
 Just execute the `tetrotime` command in your terminal and adjust the size of
