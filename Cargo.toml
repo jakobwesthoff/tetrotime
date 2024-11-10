@@ -4,8 +4,12 @@ version = "0.1.0"
 edition = "2021"
 
 [dependencies]
-pixel_loop = { git="https://github.com/jakobwesthoff/pixel_loop.git", branch = "main", default-features = false, features = [
+# pixel_loop = { git="https://github.com/jakobwesthoff/pixel_loop.git", branch = "main", default-features = false, features = [
+#  "crossterm",
+#] }
+pixel_loop = { path="../pixel_loop", default-features = false, features = [
   "crossterm",
 ] }
 anyhow = "*"
 chrono = "0.4.38"
+clap = { version = "4.5.20", features = ["derive"] }

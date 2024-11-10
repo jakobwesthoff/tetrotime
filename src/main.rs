@@ -1,14 +1,15 @@
-mod digits;
+mod animation;
 mod tetromino;
 
+use animation::Digit;
 use anyhow::Result;
 use chrono::{DateTime, Duration, Local};
-use digits::Digit;
+use clap::{arg, Parser};
 use pixel_loop::canvas::CrosstermCanvas;
 use pixel_loop::canvas::{Canvas, RenderableCanvas};
 use pixel_loop::color::Color;
 use pixel_loop::input::{CrosstermInputState, KeyboardKey, KeyboardState};
-use tetromino::DigitBoard;
+use tetromino::{Board, Colorscheme, DigitBoard, Rotation, Shape};
 
 fn time_to_digits(now: DateTime<Local>) -> Vec<Digit> {
     let now_string = now.format("%H%M%S").to_string();
@@ -19,21 +20,25 @@ fn time_to_digits(now: DateTime<Local>) -> Vec<Digit> {
 }
 
 struct State {
-    boards: Vec<DigitBoard>,
+    digit_boards: Vec<DigitBoard>,
     current_digits: Vec<Digit>,
+    seperator_boards: Vec<Board>,
     last_update_time: DateTime<Local>,
+    colorscheme: Colorscheme,
 }
 
 impl State {
-    fn new() -> Self {
+    fn new(colorscheme: Colorscheme) -> Self {
         Self {
-            boards: vec![],
+            digit_boards: vec![],
             current_digits: vec![],
+            seperator_boards: vec![],
             last_update_time: Local::now(),
+            colorscheme,
         }
     }
 
-    fn initialize_time(&mut self, width: u32, height: u32) {
+    fn resize_canvas(&mut self, width: u32, height: u32) {
         // Each digit is 6x10
         // Spacing 2 between each
         // There are 6 digits
@@ -44,18 +49,48 @@ impl State {
         let now = Local::now();
         let digits = time_to_digits(now);
 
-        self.boards = digits
+        let colorscheme = self.colorscheme.clone();
+        self.digit_boards = digits
             .iter()
             .cloned()
             .enumerate()
-            .map(|(i, digit)| DigitBoard::new(x_start + (i as i64 * 8), y_stop, digit.into()))
+            .map(|(i, digit)| {
+                // @TODO: This is ugly as hell, but it is late and my brain
+                // doesn't want to come up with something nicer here at the
+                // moment ;)
+                let x = x_start
+                    + match i {
+                        0 => 0,
+                        1 => 6 + 2,
+                        2 => 6 + 2 + 6 + 6,
+                        3 => 6 + 2 + 6 + 6 + 6 + 2,
+                        4 => 6 + 2 + 6 + 6 + 6 + 2 + 6 + 6,
+                        5 => 6 + 2 + 6 + 6 + 6 + 2 + 6 + 6 + 6 + 2,
+                        _ => panic!("unknown digit position {}", i),
+                    };
+                DigitBoard::new(i, x, y_stop, colorscheme, digit.into())
+            })
             .collect();
         self.current_digits = digits;
+        self.seperator_boards = vec![
+            // @TODO: This is ugly as hell, but it is late and my brain
+            // doesn't want to come up with something nicer here at the
+            // moment ;)
+            Board::new(x_start + (6 + 2 + 6 + 2), 0, y_stop - 2),
+            Board::new(x_start + (6 + 2 + 6 + 2), -4, y_stop - 6),
+            Board::new(x_start + (6 + 2 + 6 + 6 + 6 + 2 + 6 + 2), 0, y_stop - 2),
+            Board::new(x_start + (6 + 2 + 6 + 6 + 6 + 2 + 6 + 2), -4, y_stop - 6),
+        ];
+
+        let color = self.colorscheme.apply(Shape::O, Digit::Zero, 0);
+        for board in self.seperator_boards.iter_mut() {
+            board.add_tetromino(0, 0, color, Shape::O, Rotation::NoRotation);
+        }
     }
 
     fn update_time(&mut self, now: DateTime<Local>) {
         let digits = time_to_digits(now);
-        for (i, board) in self.boards.iter_mut().enumerate() {
+        for (i, board) in self.digit_boards.iter_mut().enumerate() {
             if self.current_digits[i] != digits[i] {
                 board.set_digit(digits[i]);
             }
@@ -63,13 +98,24 @@ impl State {
         self.current_digits = digits;
     }
 }
+#[derive(Parser, Debug)]
+#[command(
+    author = "Jakob Westhoff <jakob@westhoffswelt.de>",
+    about = "TetroTime - Time meets Tetris!"
+)]
+struct Args {
+    #[arg(short='c', long, value_enum, default_value_t = Colorscheme::default())]
+    colorscheme: Colorscheme,
+}
 
 fn main() -> Result<()> {
+    let args = Args::parse();
+
     let canvas = CrosstermCanvas::new();
     let input = CrosstermInputState::new();
 
-    let mut state = State::new();
-    state.initialize_time(canvas.width(), canvas.height());
+    let mut state = State::new(args.colorscheme);
+    state.resize_canvas(canvas.width(), canvas.height());
 
     eprintln!("Render size: {}x{}", canvas.width(), canvas.height());
 
@@ -79,14 +125,19 @@ fn main() -> Result<()> {
         input,
         canvas,
         |e, s, input, canvas| {
-            let width = canvas.width();
-            let height = canvas.height();
+            if let Some((width, height)) = canvas.did_resize() {
+                s.resize_canvas(width, height);
+            }
 
             if input.is_key_pressed(KeyboardKey::Q) {
                 std::process::exit(0);
             }
 
-            for board in s.boards.iter_mut() {
+            for board in s.digit_boards.iter_mut() {
+                board.update(canvas);
+            }
+
+            for board in s.seperator_boards.iter_mut() {
                 board.update(canvas);
             }
 
@@ -101,7 +152,11 @@ fn main() -> Result<()> {
         |e, s, i, canvas, dt| {
             canvas.clear_screen(&Color::from_rgb(0, 0, 0));
 
-            for board in s.boards.iter() {
+            for board in s.digit_boards.iter() {
+                board.render(canvas);
+            }
+
+            for board in s.seperator_boards.iter() {
                 board.render(canvas);
             }
 

@@ -41,14 +41,14 @@ impl From<u32> for Digit {
     }
 }
 
+pub type Animation = Vec<FallingTetromino>;
+
 #[derive(Debug, Copy, Clone)]
 pub struct FallingTetromino {
     pub shape: Shape,
     pub rotation: Rotation,
     pub dx: i64,
 }
-
-pub type Animation = Vec<FallingTetromino>;
 
 impl FallingTetromino {
     pub fn new(shape: Shape, rotation: Rotation, dx: i64) -> Self {

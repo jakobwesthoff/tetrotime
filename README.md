@@ -1,7 +1,5 @@
 # ⌚Tetro Time 🎮
 
-Warning: **WORK IN PROGRESS**, Not working yet ;)
-
 ## Overview
 
 A tetris/tetromino based clock, timer and stopwatch for your **terminal**, which
