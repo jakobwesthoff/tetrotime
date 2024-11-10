@@ -354,7 +354,9 @@ dependencies = [
 
 [[package]]
 name = "pixel_loop"
-version = "0.1.1"
+version = "0.2.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "45166ef53e8b1ae184a84b2c3d3ae3dd7a5048692aacdf66401bbadffb222d30"
 dependencies = [
  "anyhow",
  "crossterm",
@@ -517,7 +519,7 @@ dependencies = [
 
 [[package]]
 name = "tetrotime"
-version = "0.1.0"
+version = "1.0.0"
 dependencies = [
  "anyhow",
  "chrono",
