@@ -16,7 +16,7 @@ edition = "2021"
 # pixel_loop = { path="../pixel_loop", default-features = false, features = [
 #   "crossterm",
 # ] }
-anyhow = "1.0.93
+anyhow = "1.0.93"
 chrono = "0.4.38"
 clap = { version = "4.5.20", features = ["derive"] }
 
