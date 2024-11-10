@@ -2,14 +2,11 @@ mod digits;
 mod tetromino;
 
 use anyhow::Result;
-use digits::Digit;
-use pixel_loop::canvas::CrosstermCanvas;
 use pixel_loop::canvas::{Canvas, RenderableCanvas};
+use pixel_loop::canvas::{CrosstermCanvas, PixelsCanvas};
 use pixel_loop::color::Color;
-use pixel_loop::crossterm::terminal;
-use pixel_loop::input::{CrosstermInputState, KeyboardKey, KeyboardState};
-use pixel_loop::rand::Rng;
-use tetromino::{Board, DigitBoard};
+use pixel_loop::input::{CrosstermInputState, KeyboardKey, KeyboardState, PixelsInputState};
+use tetromino::DigitBoard;
 
 struct State {
     board: DigitBoard,
@@ -17,7 +14,7 @@ struct State {
 }
 
 impl State {
-    fn new(width: u32, height: u32) -> Self {
+    fn new() -> Self {
         Self {
             board: DigitBoard::new(20),
             current_digit: 0,
@@ -26,17 +23,12 @@ impl State {
 }
 
 fn main() -> Result<()> {
-    let (terminal_width, terminal_height) = terminal::size()?;
-    let width = terminal_width;
-    let height = terminal_height * 2;
-
-    let mut canvas = CrosstermCanvas::new(width, height);
-    canvas.set_refresh_limit(120);
-
-    let state = State::new(width as u32, height as u32);
+    let canvas = CrosstermCanvas::new();
     let input = CrosstermInputState::new();
 
-    eprintln!("Render size: {width}x{height}");
+    let state = State::new();
+
+    eprintln!("Render size: {}x{}", canvas.width(), canvas.height());
 
     pixel_loop::run(
         30,
@@ -73,6 +65,5 @@ fn main() -> Result<()> {
 
             Ok(())
         },
-    )?;
-    Ok(())
+    );
 }
