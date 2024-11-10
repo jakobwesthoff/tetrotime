@@ -3,6 +3,7 @@ name = "tetrotime"
 authors = ["Jakob Westhoff <jakob@westhoffswelt.de>"]
 description = "Time meets Tetris - A Tetromino Clock/Stopwatch/Timer for your terminal"
 license = "MIT"
+repository = "https://github.com/jakobwesthoff/tetrotime"
 version = "1.0.0"
 edition = "2021"
 
