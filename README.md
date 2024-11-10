@@ -11,6 +11,16 @@ projects.
 
 <img src="assets/thumbnail.png" width="80%" style="max-width: 80%;" />
 
+## Install
+
+Use `cargo` to install:
+
+```bash
+cargo install tetrotime
+```
+
+**Note:** Currently there is no binary release available. If you would be interested in something like this please let me know.
+
 ## Usage
 
 Just execute the `tetrotime` command in your terminal and adjust the size of
