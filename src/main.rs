@@ -9,6 +9,7 @@ use pixel_loop::canvas::CrosstermCanvas;
 use pixel_loop::canvas::{Canvas, RenderableCanvas};
 use pixel_loop::color::Color;
 use pixel_loop::input::{CrosstermInputState, KeyboardKey, KeyboardState};
+use pixel_loop::NextLoopState;
 use tetromino::{Board, Colorscheme, DigitBoard, Rotation, Shape};
 
 fn time_string_to_digits<T: AsRef<str>>(time_string: T) -> Vec<Digit> {
@@ -85,7 +86,7 @@ impl State {
         // There are 6 digits
         // -> height: 10
         // -> width: 6*6 + 5*2
-        let x_start = (width as i64 - 6 * 6 - 5 * 2) / 2;
+        let x_start = (width as i64 - 6 * 6 - 3 * 2 - 6*2) / 2;
         let y_stop = (height as i64 + 10) / 2;
         let now = Local::now();
         let digits = time_string_to_digits(self.mode.get_timestring());
@@ -202,7 +203,7 @@ fn main() -> Result<()> {
             }
 
             if input.is_key_pressed(KeyboardKey::Q) {
-                std::process::exit(0);
+                return Ok(NextLoopState::Exit(0));
             }
 
             for board in s.digit_boards.iter_mut() {
@@ -219,7 +220,7 @@ fn main() -> Result<()> {
                 s.last_update_time = now;
             }
 
-            Ok(())
+            Ok(NextLoopState::Continue)
         },
         |e, s, i, canvas, dt| {
             canvas.clear_screen(&Color::from_rgb(0, 0, 0));
@@ -234,7 +235,7 @@ fn main() -> Result<()> {
 
             canvas.render()?;
 
-            Ok(())
+            Ok(NextLoopState::Continue)
         },
     );
 }
