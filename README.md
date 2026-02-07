@@ -13,8 +13,8 @@ YouTube at [MrJakob](https://youtube.com/c/mrjakob).
 cargo install tetrotime
 ```
 
-> [!NOTE]
-> No prebuilt binaries are available. You need a working Rust toolchain.
+Pre-built binaries for macOS, Linux, and Windows are available on the
+[GitHub Releases](https://github.com/jakobwesthoff/tetrotime/releases) page.
 
 ## Quick Start
 
