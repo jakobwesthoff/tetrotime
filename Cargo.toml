@@ -1,7 +1,7 @@
 [package]
 name = "tetrotime"
 authors = ["Jakob Westhoff <jakob@westhoffswelt.de>"]
-description = "Time meets Tetris - A Tetromino Clock/Stopwatch/Timer for your terminal"
+description = "A terminal clock powered by the tetrominos from your childhood"
 license = "MIT"
 repository = "https://github.com/jakobwesthoff/tetrotime"
 version = "1.0.2"

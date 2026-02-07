@@ -1,0 +1,45 @@
+name: TetroTime
+tagline: A terminal clock powered by the tetrominos from your childhood
+github: jakobwesthoff/tetrotime
+
+author:
+  name: Jakob Westhoff
+  website: https://westhoffswelt.de
+
+navbar_buttons:
+  - label: Quick Start
+    href: "#quickstart"
+    style: primary
+    icon: download
+  - label: GitHub
+    href: https://github.com/jakobwesthoff/tetrotime
+    style: secondary
+    icon: github
+
+sections:
+  - id: hero
+    file: sections/hero.html
+    nav: false
+
+  - id: highlights
+    file: sections/highlights.html
+    nav: false
+
+  - id: demo
+    file: sections/demo.html
+    nav: true
+    nav_label: Demo
+
+  - id: quickstart
+    file: sections/quick-start.html
+    nav: true
+    nav_label: Quick Start
+
+  - id: docs
+    source: readme
+    nav: true
+    nav_label: Documentation
+
+  - id: footer
+    file: sections/footer.html
+    nav: false

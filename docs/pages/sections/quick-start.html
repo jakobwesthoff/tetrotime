@@ -1,0 +1,56 @@
+<section id="quickstart" class="quickstart">
+  <div class="container">
+    <h2>Quick Start</h2>
+
+    <div class="tabs">
+      <div class="tab-buttons">
+        <button class="tab-button active" data-tab="cargo">Cargo (Recommended)</button>
+        <button class="tab-button" data-tab="binary">Binary Releases</button>
+        <button class="tab-button" data-tab="source">From Source</button>
+      </div>
+      <div class="tab-panels">
+        <div class="tab-panel active" data-tab="cargo">
+          <div class="code-block">
+            <pre><code class="language-bash">cargo install tetrotime</code></pre>
+          </div>
+          <div style="padding: var(--space-md) var(--space-lg); border-top: 1px solid var(--color-border);">
+            <p style="margin: 0; color: var(--color-text-muted);">
+              Available on <a href="https://crates.io/crates/tetrotime" style="color: var(--color-primary);">crates.io</a>
+            </p>
+          </div>
+        </div>
+        <div class="tab-panel" data-tab="binary">
+          <div style="padding: var(--space-lg); background-color: var(--color-bg-code);">
+            <p style="margin: 0 0 1rem 0;">Pre-built binaries for macOS, Linux, and Windows:</p>
+            <a href="https://github.com/jakobwesthoff/tetrotime/releases" class="btn btn-primary">
+              <i data-icon="download"></i>
+              View Releases
+            </a>
+          </div>
+        </div>
+        <div class="tab-panel" data-tab="source">
+          <div class="code-block">
+            <pre><code class="language-bash">git clone https://github.com/jakobwesthoff/tetrotime.git
+cd tetrotime
+cargo build --release</code></pre>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <h3>Basic Usage</h3>
+    <div class="code-block">
+      <pre><code class="language-bash"># Clock showing current local time
+tetrotime
+
+# Stopwatch counting up from 00:00:00
+tetrotime --stopwatch
+
+# 5-minute countdown timer
+tetrotime --countdown 00:05:00
+
+# Pick a colorscheme
+tetrotime -s neon</code></pre>
+    </div>
+  </div>
+</section>

@@ -1,6 +1,6 @@
-# Tetro Time
+# TetroTime
 
-A terminal clock that displays time using falling tetromino pieces.
+A terminal clock powered by the tetrominos from your childhood.
 
 <img src="assets/thumbnail.png" width="80%" style="max-width: 80%;" />
 
