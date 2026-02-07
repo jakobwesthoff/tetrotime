@@ -2,7 +2,7 @@
 
 A terminal clock powered by the tetrominos from your childhood.
 
-<img src="assets/thumbnail.png" width="80%" style="max-width: 80%;" />
+<video src="docs/pages/assets/demo.mp4" autoplay loop muted playsinline width="80%"></video>
 
 Built with [pixel_loop](https://crates.io/crates/pixel_loop). Live-coded on
 YouTube at [MrJakob](https://youtube.com/c/mrjakob).
