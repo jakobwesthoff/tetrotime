@@ -6,6 +6,9 @@ license = "MIT"
 repository = "https://github.com/jakobwesthoff/tetrotime"
 version = "1.0.2"
 edition = "2021"
+# Screenshots, docs, todos and repository tooling are not needed to build
+# tetrotime. CLAUDE.md and test-output/ are local, untracked files.
+exclude = [".github/", "CLAUDE.md", "assets/", "docs/", "test-output/", "todos/"]
 
 [dependencies]
  pixel_loop = { version="0.3.0", default-features = false, features = [
