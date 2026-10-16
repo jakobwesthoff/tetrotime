@@ -1,6 +1,8 @@
 name: TetroTime
 tagline: A terminal clock powered by the tetrominos from your childhood
 github: jakobwesthoff/tetrotime
+url: https://tetrotime.westhoffswelt.de
+og_image: assets/og.png
 
 author:
   name: Jakob Westhoff
