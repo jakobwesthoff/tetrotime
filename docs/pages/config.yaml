@@ -3,6 +3,7 @@ tagline: A terminal clock powered by the tetrominos from your childhood
 github: jakobwesthoff/tetrotime
 url: https://tetrotime.westhoffswelt.de
 og_image: assets/og.png
+og_image_alt: "TetroTime: A terminal clock made of tetrominos, showing 10:09:04 in coloured Tetris blocks."
 
 author:
   name: Jakob Westhoff
